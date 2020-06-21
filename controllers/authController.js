@@ -102,6 +102,33 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   signAndSendJwt(user, 200, res);
 });
 
+// @desc    Delete logged in user
+// @route   DELETE /api/v1/auth/deleteme
+// @access  Private - "user", "admin"
+exports.deleteMe = asyncHandler(async (req, res, next) => {
+  const { currentPassword, password, passwordConfirm } = req.body;
+
+  // HANDLE REQUIRED FIELDS MISSING
+  if (!req.body.currentPassword) {
+    return next(new CustomError(`Fields currentPassword is required`, 400));
+  }
+
+  // HANDLE PASSWORD INCORRECT
+  let user = await User.findById(req.user.id).select('+password');
+  if (!(await user.verifyPassword(currentPassword))) {
+    return next(new CustomError(`Password incorrect`, 400));
+  }
+
+  // DISABLE USER
+  req.user.isActive = false;
+  await req.user.save({ validateBeforeSave: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 // AUTHENTICATE USER WITH TOKEN
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
