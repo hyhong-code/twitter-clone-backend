@@ -1,6 +1,7 @@
 const asyncHandler = require('../utils/asyncHandler');
 const CustomError = require('../utils/customError');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 // @desc    Sign up a user
 // @route   POST /api/v1/auth/signup
@@ -36,6 +37,59 @@ exports.login = asyncHandler(async (req, res, next) => {
   }
 
   signAndSendJwt(user, 200, res);
+});
+
+// @desc    Load logged in user
+// @route   GET /api/v1/auth/loadme
+// @access  Private - "user", "admin"
+exports.loadMe = asyncHandler(async (req, res, next) => {});
+
+// AUTHENTICATE USER WITH TOKEN
+exports.protect = asyncHandler(async (req, res, next) => {
+  let token;
+
+  // HANDLE BEARER TOKEN
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+
+    // HANLE COOKIE TOKEN
+  } else if (req.cookies && req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  // NO TOKEN
+  if (!token) {
+    return next(new CustomError(`No token found, plase login`, 401));
+  }
+
+  let decoded;
+
+  // HANDLE TEMPERED TOKEN
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return next(new CustomError('Invalid token, please login again', 401));
+  }
+
+  // HANDLE USER DELETED
+  const user = await User.findById(decoded.id);
+  if (!user) {
+    return next(new CustomError(`User not found`, 404));
+  }
+
+  // HANDLE USER PASSWORD CHANGED
+  if (user.pwChangedAt.getTime() / 1000 > decoded.iat) {
+    return next(
+      new CustomError(`User password recently changed, please login again`, 401)
+    );
+  }
+
+  // ATTACH USER TO REQUEST
+  req.user = user;
+  next();
 });
 
 // SIGN A JWT AND SEND BACK TO CLIENT VIA JSON / COOKIE

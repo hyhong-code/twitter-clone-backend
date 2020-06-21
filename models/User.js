@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema({
   },
   pwResetToken: String,
   pwResetTokenExpires: String,
-  pwResetAt: Date,
+  pwChangedAt: Date,
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -67,6 +67,7 @@ UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+  this.pwChangedAt = new Date(Date.now() - 5000);
 });
 
 // VERIFY PASSWORD
