@@ -43,11 +43,63 @@ exports.login = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/auth/loadme
 // @access  Private - "user", "admin"
 exports.loadMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('-__v -pwChangedAt');
+  const user = await User.findById(req.user.id);
   res.status(200).json({
     status: 'success',
     data: { user },
   });
+});
+
+const filterBody = (body, ...fields) => {
+  const filteredBody = {};
+  fields.forEach((field) => {
+    if (body[field]) filteredBody[field] = body[field];
+  });
+  return filteredBody;
+};
+
+// @desc    Update logged in user username & email
+// @route   PATCH /api/v1/auth/updateinfo
+// @access  Private - "user", "admin"
+exports.updateInfo = asyncHandler(async (req, res, next) => {
+  const filteredBody = filterBody(req.body, 'username', 'email');
+  const user = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    status: 'success',
+    data: { user },
+  });
+});
+
+// @desc    Update logged in user password
+// @route   PATCH /api/v1/auth/updatepassword
+// @access  Private - "user", "admin"
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+  const { currentPassword, password, passwordConfirm } = req.body;
+
+  // HANDLE REQUIRED FIELDS MISSING
+  if (!(currentPassword && password && passwordConfirm)) {
+    return next(
+      new CustomError(
+        `Fields currentPassword, password, and passwordConfirm are required`,
+        400
+      )
+    );
+  }
+
+  // HANDLE PASSWORD INCORRECT
+  let user = await User.findById(req.user.id).select('+password');
+  if (!(await user.verifyPassword(currentPassword))) {
+    return next(new CustomError(`Password incorrect`, 400));
+  }
+
+  // CHANGE PASSWORD AND SEND NEW TOKEN
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  user = await user.save({ validateBeforeSave: true });
+  signAndSendJwt(user, 200, res);
 });
 
 // AUTHENTICATE USER WITH TOKEN
