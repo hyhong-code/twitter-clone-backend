@@ -71,6 +71,7 @@ UserSchema.pre('save', async function (next) {
 
 // VERIFY PASSWORD
 UserSchema.methods.verifyPassword = async function (plain) {
+  console.log(plain, this.password);
   return await bcrypt.compare(plain, this.password);
 };
 
