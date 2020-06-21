@@ -92,13 +92,14 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   // HANDLE PASSWORD INCORRECT
   let user = await User.findById(req.user.id).select('+password');
   if (!(await user.verifyPassword(currentPassword))) {
-    return next(new CustomError(`Password incorrect`, 400));
+    return next(new CustomError(`Password incorrect`, 401));
   }
 
   // CHANGE PASSWORD AND SEND NEW TOKEN
   user.password = password;
   user.passwordConfirm = passwordConfirm;
   user = await user.save({ validateBeforeSave: true });
+
   signAndSendJwt(user, 200, res);
 });
 

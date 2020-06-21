@@ -79,11 +79,11 @@ UserSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
   this.pwChangedAt = new Date(Date.now() - 5000);
+  next();
 });
 
 // VERIFY PASSWORD
 UserSchema.methods.verifyPassword = async function (plain) {
-  console.log(plain, this.password);
   return await bcrypt.compare(plain, this.password);
 };
 
