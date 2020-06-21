@@ -195,3 +195,16 @@ const signAndSendJwt = (user, statusCode, res) => {
     data: { token },
   });
 };
+
+// AUTHORIZE USER BY ROLES
+exports.authorize = (...roles) =>
+  asyncHandler(async (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new CustomError(
+          `User role ${req.user.role} is not authorized to access this route`,
+          403
+        )
+      );
+    }
+  });
