@@ -1,4 +1,4 @@
-const mongoose = reqire('mongoose');
+const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
     minlength: [5, 'A username must be at least 5 characters long'],
     maxlength: [20, 'A username must be no more than 25 characters long'],
     match: [
-      /^[a-z0-9_-]$/gim,
+      /^[a-z0-9_-]+$/,
       'A username must only contain a-z, 0-9, "-", and "-"',
     ],
   },
@@ -45,7 +45,7 @@ const UserSchema = new mongoose.Schema({
   },
   passwordConfirm: {
     type: String,
-    required: [true, 'A password is required'],
+    required: [true, 'A password confirmation is required'],
     validate: {
       validator: function (v) {
         return v === this.password;
