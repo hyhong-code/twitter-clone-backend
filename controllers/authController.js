@@ -42,7 +42,13 @@ exports.login = asyncHandler(async (req, res, next) => {
 // @desc    Load logged in user
 // @route   GET /api/v1/auth/loadme
 // @access  Private - "user", "admin"
-exports.loadMe = asyncHandler(async (req, res, next) => {});
+exports.loadMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('-__v -pwChangedAt');
+  res.status(200).json({
+    status: 'success',
+    data: { user },
+  });
+});
 
 // AUTHENTICATE USER WITH TOKEN
 exports.protect = asyncHandler(async (req, res, next) => {
