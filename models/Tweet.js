@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Comment = require('./Comment');
 
 const TweetSchema = new mongoose.Schema({
   text: {
@@ -61,6 +62,21 @@ const TweetSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+});
+
+// CASCADE DELETE COMMENTS
+TweetSchema.pre('remove', async function (next) {
+  await Comment.deleteMany({ tweet: this._id });
+  next();
+});
+
+// POPULATE USERNAME AND PROFILE PIC
+TweetSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'user',
+    select: 'username profilePhoto',
+  });
+  next();
 });
 
 module.exports = mongoose.model('Tweet', TweetSchema);
