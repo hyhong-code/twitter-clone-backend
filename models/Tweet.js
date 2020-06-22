@@ -14,10 +14,7 @@ const TweetSchema = new mongoose.Schema({
         type: String,
         trim: true,
         maxlength: [16, 'A hashtag must be no more than 15 characters long'],
-        match: [
-          /^#[a-zA-Z0-9]+$/,
-          'A hashtag must start with a "#" and only contain a-z and 0-9',
-        ],
+        match: [/^[a-zA-Z0-9]+$/, 'A hashtag must only contain a-z and 0-9'],
       },
     ],
     validate: {

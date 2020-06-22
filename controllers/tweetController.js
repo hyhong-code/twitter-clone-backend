@@ -2,6 +2,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const CustomError = require('../utils/customError');
 const Tweet = require('../models/Tweet');
 const filterBody = require('../utils/filterBody');
+const QueryOptions = require('../utils/queryOptions');
 
 // @desc    Create a tweet
 // @route   POST /api/v1/tweets
@@ -20,7 +21,15 @@ exports.createTweet = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/tweets
 // @access  Public
 exports.getTweets = asyncHandler(async (req, res, next) => {
-  const tweets = await Tweet.find();
+  console.log(req.query);
+  const query = Tweet.find();
+
+  const tweets = await new QueryOptions(query, req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate().query;
+
   res.status(200).json({
     status: 'success',
     results: tweets.length,
