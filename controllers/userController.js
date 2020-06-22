@@ -41,3 +41,40 @@ exports.getUser = asyncHandler(async (req, res, next) => {
     data: { user },
   });
 });
+
+// @desc    Get a user
+// @route   GET /api/v1/user/:id
+// @access  Private - "admin"
+exports.updateUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  // HANDLE USER NOT EXIST
+  if (!user) {
+    return next(new CustomError(`No user with id ${req.params.id}`, 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: { user },
+  });
+});
+
+// @desc    Delete a user
+// @route   DELETE /api/v1/user/:id
+// @access  Private - "admin"
+exports.deleteUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+
+  // HANDLE USER NOT EXIST
+  if (!user) {
+    return next(new CustomError(`No user with id ${req.params.id}`, 404));
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
