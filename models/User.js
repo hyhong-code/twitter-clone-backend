@@ -65,6 +65,18 @@ const UserSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  followers: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
+  followedBy: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
 });
 
 // EXCLUDE DISABLED USERS FROM QUERIES

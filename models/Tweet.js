@@ -24,7 +24,6 @@ const TweetSchema = new mongoose.Schema({
       validator: (v) => v.length <= 5,
       message: 'A tweet can have at most 5 hashtags',
     },
-    default: [],
   },
   image: String,
   location: {
@@ -38,14 +37,21 @@ const TweetSchema = new mongoose.Schema({
       required: true,
     },
   },
-  likes: {
-    type: Number,
-    default: 0,
-  },
+  likes: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
   location: {
     type: [Number],
     validate: {
-      validator: (v) => v.length === 2,
+      validator: (v) => {
+        if (v.length) {
+          return v.length === 2;
+        }
+        return true;
+      },
       message: 'location must be in the format of [lng, lat]',
     },
   },

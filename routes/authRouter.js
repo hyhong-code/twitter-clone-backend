@@ -15,8 +15,8 @@ router.route('/signup').post(signup);
 router.route('/login').post(login);
 
 router.route('/loadme').get(protect, loadMe);
-router.route('/updateinfo').post(protect, updateInfo);
-router.route('/updatepassword').post(protect, updatePassword);
+router.route('/updateinfo').patch(protect, updateInfo);
+router.route('/updatepassword').patch(protect, updatePassword);
 router.route('/deleteme').delete(protect, deleteMe);
 
 module.exports = router;

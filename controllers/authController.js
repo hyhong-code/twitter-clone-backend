@@ -2,6 +2,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const CustomError = require('../utils/customError');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const filterBody = require('../utils/filterBody');
 
 // @desc    Sign up a user
 // @route   POST /api/v1/auth/signup
@@ -49,14 +50,6 @@ exports.loadMe = asyncHandler(async (req, res, next) => {
     data: { user },
   });
 });
-
-const filterBody = (body, ...fields) => {
-  const filteredBody = {};
-  fields.forEach((field) => {
-    if (body[field]) filteredBody[field] = body[field];
-  });
-  return filteredBody;
-};
 
 // @desc    Update logged in user username & email
 // @route   PATCH /api/v1/auth/updateinfo
