@@ -200,4 +200,5 @@ exports.authorize = (...roles) =>
         )
       );
     }
+    next();
   });

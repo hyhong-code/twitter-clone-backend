@@ -21,7 +21,6 @@ exports.createTweet = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/tweets
 // @access  Public
 exports.getTweets = asyncHandler(async (req, res, next) => {
-  console.log(req.query);
   const query = Tweet.find();
 
   const tweets = await new QueryOptions(query, req.query)

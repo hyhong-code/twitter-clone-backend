@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Tweet = require('./Tweet');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -88,6 +89,14 @@ UserSchema.virtual('tweets', {
   localField: '_id',
   foreignField: 'user',
   onlyOne: false,
+});
+
+// CASCADE DELETE TWEETS
+UserSchema.post('findOneAndDelete', async function (doc, next) {
+  const tweets = await Tweet.find({ user: doc._id });
+  const removePromises = tweets.map((tweet) => tweet.remove());
+  await Promise.all(removePromises);
+  next();
 });
 
 // EXCLUDE DISABLED USERS FROM QUERIES
